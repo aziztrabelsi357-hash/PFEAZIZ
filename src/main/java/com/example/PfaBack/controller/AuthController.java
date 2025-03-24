@@ -11,10 +11,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -64,7 +61,6 @@ public class AuthController {
         user.setResetTokenExpiry(new Date(System.currentTimeMillis() + 3600000)); // 1-hour expiry
         userRepository.save(user);
 
-        // Send email with reset link
         String resetLink = "http://localhost:5173/reset-password?token=" + resetToken;
         sendResetEmail(user.getEmail(), resetLink);
 
@@ -85,6 +81,33 @@ public class AuthController {
         userRepository.save(user);
 
         return "Password reset successfully!";
+    }
+
+    @GetMapping("/user")
+    public Map<String, String> getUserDetails(@RequestHeader("Authorization") String authHeader) {
+
+        String token = authHeader.replace("Bearer ", "");
+
+
+        if (!jwtUtil.validateToken(token)) {
+            throw new RuntimeException("Invalid or expired JWT token");
+        }
+
+
+        String email = jwtUtil.extractEmail(token);
+
+
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (!userOptional.isPresent()) {
+            throw new RuntimeException("User not found");
+        }
+        User user = userOptional.get();
+
+
+        Map<String, String> userDetails = new HashMap<>();
+        userDetails.put("username", user.getUsername());
+        userDetails.put("email", user.getEmail());
+        return userDetails;
     }
 
     private void sendResetEmail(String to, String resetLink) {
