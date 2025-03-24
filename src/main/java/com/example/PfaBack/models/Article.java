@@ -9,6 +9,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Article {
     private String title;
-    private String content;  // The content of the article
-    private String source;   // The source (URL or reference) of the article (optional)
+    private String content;
 }

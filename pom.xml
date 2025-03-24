@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.2</version>
+		<version>3.4.2</version> <!-- Latest version as per Maven Central -->
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
@@ -17,7 +17,7 @@
 	<description>Demo project for Spring Boot</description>
 
 	<properties>
-		<java.version>21</java.version>  <!-- Utilise Java 21 au lieu de 23 -->
+		<java.version>21</java.version>
 	</properties>
 
 	<dependencies>
@@ -25,6 +25,10 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId> <!-- No version needed -->
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -42,8 +46,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
-
-
 
 		<!-- JWT (JSON Web Token) for authentication -->
 		<dependency>
@@ -63,7 +65,6 @@
 			<version>0.11.5</version>
 			<scope>runtime</scope>
 		</dependency>
-
 
 		<!-- Lombok to reduce boilerplate code -->
 		<dependency>
@@ -101,7 +102,7 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.1</version>
 				<configuration>
-					<source>21</source> <!-- Utilisation de Java 21 -->
+					<source>21</source>
 					<target>21</target>
 					<annotationProcessorPaths>
 						<path>

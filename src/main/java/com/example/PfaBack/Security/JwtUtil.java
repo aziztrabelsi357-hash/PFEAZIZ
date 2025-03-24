@@ -13,17 +13,16 @@ public class JwtUtil {
 
     private final Key key = Keys.hmacShaKeyFor("SECRET_KEY_SECRET_KEY_SECRET_KEY_SECRET_KEY".getBytes());
 
-    // Générer un JWT
-    public String generateToken(String username) {
+
+    public String generateToken(String email) {
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 3600000)) // Expire dans 1 heure
+                .setExpiration(new Date(System.currentTimeMillis() + 3600000))
                 .signWith(key)
                 .compact();
     }
 
-    // Extraire le nom d'utilisateur à partir du token
     public String extractUsername(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
