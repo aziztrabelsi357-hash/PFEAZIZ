@@ -11,5 +11,5 @@ import java.util.List;
 public interface DiseaseRepository extends MongoRepository<Disease, String> {
     @Query("{ 'name': { $regex: ?0, $options: 'i' } }")
     List<Disease> findByNameContaining(String keyword);
-    List<Disease> findByArticlesTitleContaining(String keyword);
+
 }
