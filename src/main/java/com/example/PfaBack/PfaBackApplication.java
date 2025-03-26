@@ -1,32 +1,29 @@
 package com.example.PfaBack;
-import com.example.PfaBack.models.Product;
-import com.example.PfaBack.repository.ProductRepository;
-import org.springframework.boot.CommandLineRunner;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @SpringBootApplication
-public class PfaBackApplication implements CommandLineRunner {
-
-	@Autowired
-	private ProductRepository productRepository;  // Inject the repository
+public class PfaBackApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(PfaBackApplication.class, args);
 	}
 
-	@Override
-	public void run(String... args) throws Exception {
-		// Insert a product when the application starts
-		Product product = new Product();
-		product.setName("Rabies Vaccine");
-		product.setDiseaseId("rabies");
-		product.setDescription("Vaccine for rabies");
-
-		productRepository.save(product);  // Save the product into the 'products' collection
-		System.out.println("Product added: " + product.getName());
+	@Bean
+	public WebMvcConfigurer corsConfigurer() {
+		return new WebMvcConfigurer() {
+			@Override
+			public void addCorsMappings(CorsRegistry registry) {
+				registry.addMapping("/**")
+						.allowedOrigins("http://localhost:5173")
+						.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+						.allowedHeaders("*")
+						.allowCredentials(true);
+			}
+		};
 	}
 }
-
-
