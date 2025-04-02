@@ -7,6 +7,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.FloatBuffer;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +51,7 @@ public class RabiesDetectionService {
 
         try (OrtSession.Result results = session.run(inputs)) {
             float[][][] output = (float[][][]) results.get(0).getValue();
-            return postProcessOutput(output, image.getWidth(), image.getHeight());
+            return postProcessOutput(output);
         }
     }
 
@@ -76,25 +77,66 @@ public class RabiesDetectionService {
         return result;
     }
 
-    private Map<String, Object> postProcessOutput(float[][][] output, int originalWidth, int originalHeight) {
+    private Map<String, Object> postProcessOutput(float[][][] output) {
         float maxConfidence = 0.0f;
         String detectedSymptom = "None";
         int bestClass = -1;
-        float[] bestBox = new float[]{0, 0, 0, 0}; // [x, y, w, h]
 
+        // Log the output shape
         System.out.println("Output shape: [" + output.length + ", " + output[0].length + ", " + output[0][0].length + "]");
 
+        // Transpose the output tensor from [1, num_classes + 5, num_boxes] to [1, num_boxes, num_classes + 5]
+        int numBoxes = output[0][0].length;
+        int numAttributes = output[0].length; // Should be num_classes + 5
+        float[][][] transposedOutput = new float[1][numBoxes][numAttributes];
+
+        for (int i = 0; i < numBoxes; i++) {
+            for (int j = 0; j < numAttributes; j++) {
+                transposedOutput[0][i][j] = output[0][j][i];
+            }
+        }
+
+        // Log the transposed shape
+        System.out.println("Transposed output shape: [" + transposedOutput.length + ", " + transposedOutput[0].length + ", " + transposedOutput[0][0].length + "]");
+
+        // Verify the number of attributes
+        int expectedAttributes = classNames.size() + 5;
+        if (numAttributes != expectedAttributes) {
+            System.out.println("Warning: Expected " + expectedAttributes + " attributes (4 for bbox, 1 for confidence, " + classNames.size() + " for classes), but got " + numAttributes);
+        }
+
+        // Use the transposed output
+        float[][] detections = transposedOutput[0];
+
+        // Log a sample detection
+        if (detections.length > 0) {
+            System.out.println("Sample detection: " + Arrays.toString(detections[0]));
+        }
+
         // Process detections
-        for (int i = 0; i < output[0].length; i++) {
-            float confidence = output[0][i][4]; // Confidence score
-            if (confidence > maxConfidence && confidence > 0.3) { // Apply a minimum confidence threshold
+        for (int i = 0; i < detections.length; i++) {
+            // Check if the output includes an objectness score (e.g., [x, y, w, h, objectness, confidence, class_scores...])
+            int confidenceIndex = numAttributes == expectedAttributes ? 4 : 5;
+            float confidence = confidenceIndex < numAttributes ? detections[i][confidenceIndex] : 0.0f;
+
+            if (confidence < 0 || confidence > 1) {
+                System.out.println("Invalid confidence value: " + confidence + " at index " + i);
+                continue;
+            }
+            if (confidence > maxConfidence && confidence > 0.3) {
                 maxConfidence = confidence;
-                // Class scores
                 float[] classScores = new float[classNames.size()];
+                int classStartIndex = numAttributes == expectedAttributes ? 5 : 6;
                 for (int j = 0; j < classNames.size(); j++) {
-                    classScores[j] = output[0][i][5 + j];
+                    int classIndex = classStartIndex + j;
+                    if (classIndex < numAttributes) {
+                        classScores[j] = detections[i][classIndex];
+                    } else {
+                        classScores[j] = 0.0f;
+                        System.out.println("Warning: Missing class score for index " + j + " at detection " + i);
+                    }
                 }
-                // Find the class with the highest score
+                System.out.println("Class scores for detection " + i + ": " + Arrays.toString(classScores));
                 bestClass = 0;
                 for (int j = 1; j < classScores.length; j++) {
                     if (classScores[j] > classScores[bestClass]) {
@@ -102,27 +144,12 @@ public class RabiesDetectionService {
                     }
                 }
                 detectedSymptom = classNames.get(bestClass);
-                // Extract bounding box (x, y, w, h)
-                bestBox[0] = output[0][i][0]; // x
-                bestBox[1] = output[0][i][1]; // y
-                bestBox[2] = output[0][i][2]; // w
-                bestBox[3] = output[0][i][3]; // h
             }
         }
 
-        // Scale bounding box coordinates back to the original image dimensions
-        float scaleX = (float) originalWidth / 640.0f;
-        float scaleY = (float) originalHeight / 640.0f;
-        Map<String, Float> boundingBox = new HashMap<>();
-        boundingBox.put("x", bestBox[0] * scaleX);
-        boundingBox.put("y", bestBox[1] * scaleY);
-        boundingBox.put("width", bestBox[2] * scaleX);
-        boundingBox.put("height", bestBox[3] * scaleY);
-
         Map<String, Object> result = new HashMap<>();
-        result.put("confidence", maxConfidence); // Keep confidence in [0, 1] range
+        result.put("confidence", maxConfidence);
         result.put("symptom", detectedSymptom);
-        result.put("boundingBox", boundingBox);
 
         if (maxConfidence >= 0.5) {
             result.put("message", "Your dog probably has rabies. Take care and take him to the nearest clinic.");
