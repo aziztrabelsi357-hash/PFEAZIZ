@@ -27,31 +27,47 @@ public class RabiesDetectionService {
     );
 
     public RabiesDetectionService() throws OrtException {
-        this.env = OrtEnvironment.getEnvironment();
-        ClassPathResource modelResource = new ClassPathResource("models/best.onnx");
-        File modelFile;
         try {
-            modelFile = modelResource.getFile();
+            this.env = OrtEnvironment.getEnvironment();
+            ClassPathResource modelResource = new ClassPathResource("models/best.onnx");
+            File modelFile = modelResource.getFile();
+            System.out.println("Loading ONNX model from: " + modelFile.getAbsolutePath());
+            if (!modelFile.exists()) {
+                throw new RuntimeException("ONNX model file not found at: " + modelFile.getAbsolutePath());
+            }
+            this.session = env.createSession(modelFile.getAbsolutePath(), new OrtSession.SessionOptions());
+            System.out.println("ONNX model loaded successfully");
         } catch (Exception e) {
-            throw new RuntimeException("Failed to load ONNX model file", e);
+            System.err.println("Failed to initialize RabiesDetectionService: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to initialize RabiesDetectionService", e);
         }
-        this.session = env.createSession(modelFile.getAbsolutePath(), new OrtSession.SessionOptions());
     }
 
     public Map<String, Object> detectRabies(File imageFile) throws Exception {
-        BufferedImage image = ImageIO.read(imageFile);
-        BufferedImage resizedImage = resizeImage(image, 640, 640);
-        float[] imageData = preprocessImage(resizedImage);
+        try {
+            System.out.println("Processing image: " + imageFile.getAbsolutePath());
+            BufferedImage image = ImageIO.read(imageFile);
+            if (image == null) {
+                throw new RuntimeException("Failed to read image file");
+            }
+            BufferedImage resizedImage = resizeImage(image, 640, 640);
+            float[] imageData = preprocessImage(resizedImage);
 
-        long[] inputShape = new long[]{1, 3, 640, 640};
-        OnnxTensor inputTensor = OnnxTensor.createTensor(env, FloatBuffer.wrap(imageData), inputShape);
+            long[] inputShape = new long[]{1, 3, 640, 640};
+            OnnxTensor inputTensor = OnnxTensor.createTensor(env, FloatBuffer.wrap(imageData), inputShape);
 
-        Map<String, OnnxTensor> inputs = new HashMap<>();
-        inputs.put("images", inputTensor);
+            Map<String, OnnxTensor> inputs = new HashMap<>();
+            inputs.put("images", inputTensor);
 
-        try (OrtSession.Result results = session.run(inputs)) {
-            float[][][] output = (float[][][]) results.get(0).getValue();
-            return postProcessOutput(output);
+            try (OrtSession.Result results = session.run(inputs)) {
+                float[][][] output = (float[][][]) results.get(0).getValue();
+                return postProcessOutput(output);
+            }
+        } catch (Exception e) {
+            System.err.println("Error during rabies detection: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
         }
     }
 
@@ -82,12 +98,10 @@ public class RabiesDetectionService {
         String detectedSymptom = "None";
         int bestClass = -1;
 
-        // Log the output shape
         System.out.println("Output shape: [" + output.length + ", " + output[0].length + ", " + output[0][0].length + "]");
 
-        // Transpose the output tensor from [1, num_classes + 5, num_boxes] to [1, num_boxes, num_classes + 5]
         int numBoxes = output[0][0].length;
-        int numAttributes = output[0].length; // Should be num_classes + 5
+        int numAttributes = output[0].length;
         float[][][] transposedOutput = new float[1][numBoxes][numAttributes];
 
         for (int i = 0; i < numBoxes; i++) {
@@ -96,26 +110,20 @@ public class RabiesDetectionService {
             }
         }
 
-        // Log the transposed shape
         System.out.println("Transposed output shape: [" + transposedOutput.length + ", " + transposedOutput[0].length + ", " + transposedOutput[0][0].length + "]");
 
-        // Verify the number of attributes
         int expectedAttributes = classNames.size() + 5;
         if (numAttributes != expectedAttributes) {
             System.out.println("Warning: Expected " + expectedAttributes + " attributes (4 for bbox, 1 for confidence, " + classNames.size() + " for classes), but got " + numAttributes);
         }
 
-        // Use the transposed output
         float[][] detections = transposedOutput[0];
 
-        // Log a sample detection
         if (detections.length > 0) {
             System.out.println("Sample detection: " + Arrays.toString(detections[0]));
         }
 
-        // Process detections
         for (int i = 0; i < detections.length; i++) {
-            // Check if the output includes an objectness score (e.g., [x, y, w, h, objectness, confidence, class_scores...])
             int confidenceIndex = numAttributes == expectedAttributes ? 4 : 5;
             float confidence = confidenceIndex < numAttributes ? detections[i][confidenceIndex] : 0.0f;
 
