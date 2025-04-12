@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class JwtUtil {
@@ -18,10 +19,11 @@ public class JwtUtil {
         this.key = Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    public String generateToken(String email) {
-        System.out.println("Generating token for email: " + email);
+    public String generateToken(String email, List<String> roles) {
+        System.out.println("Generating token for email: " + email + " with roles: " + roles);
         String token = Jwts.builder()
                 .setSubject(email)
+                .claim("roles", roles) // Add roles to the token's claims
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationInMs))
                 .signWith(key)
@@ -43,6 +45,23 @@ public class JwtUtil {
             return email;
         } catch (JwtException e) {
             System.out.println("Failed to extract email: " + e.getMessage());
+            throw new RuntimeException("Invalid JWT token: " + e.getMessage());
+        }
+    }
+
+    public List<String> extractRoles(String token) {
+        try {
+            System.out.println("Extracting roles from token: " + token);
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            List<String> roles = claims.get("roles", List.class);
+            System.out.println("Extracted roles: " + roles);
+            return roles;
+        } catch (JwtException e) {
+            System.out.println("Failed to extract roles: " + e.getMessage());
             throw new RuntimeException("Invalid JWT token: " + e.getMessage());
         }
     }

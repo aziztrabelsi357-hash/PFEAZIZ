@@ -22,7 +22,11 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
+                        // Public endpoints
+                        .requestMatchers("/auth/**", "/diseases/**", "/products/**", "/api/care-tips/**").permitAll()
+                        // Admin-only endpoints
+                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
+                        // Other protected endpoints
                         .requestMatchers("/api/upload/**", "/api/history/**").authenticated()
                         .anyRequest().permitAll()
                 )
@@ -44,7 +48,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter();
+        return new JwtAuthenticationFilter(new com.example.PfaBack.Security.JwtUtil());
     }
 
     @Bean

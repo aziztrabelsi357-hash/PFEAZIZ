@@ -26,6 +26,7 @@ public class RabiesDetectionService {
             "hyper_salivation"
     );
 
+    // this is to load the model
     public RabiesDetectionService() throws OrtException {
         try {
             this.env = OrtEnvironment.getEnvironment();
@@ -43,7 +44,7 @@ public class RabiesDetectionService {
             throw new RuntimeException("Failed to initialize RabiesDetectionService", e);
         }
     }
-
+     // to analyze the image
     public Map<String, Object> detectRabies(File imageFile) throws Exception {
         try {
             System.out.println("Processing image: " + imageFile.getAbsolutePath());
@@ -92,7 +93,7 @@ public class RabiesDetectionService {
         }
         return result;
     }
-
+     //Processing the Model’s Output
     private Map<String, Object> postProcessOutput(float[][][] output) {
         float maxConfidence = 0.0f;
         String detectedSymptom = "None";
