@@ -39,11 +39,20 @@ public class AuthController {
         return "User registered successfully!";
     }
 
+    @PostMapping("/register-admin")
+    public String registerAdmin(@RequestBody User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRoles(Set.of("ADMIN"));
+        userRepository.save(user);
+        return "Admin registered successfully!";
+    }
+
     @PostMapping("/login")
     public String login(@RequestBody AuthRequest request) {
         Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
         if (userOptional.isPresent() && passwordEncoder.matches(request.getPassword(), userOptional.get().getPassword())) {
-            return jwtUtil.generateToken(userOptional.get().getEmail());
+            User user = userOptional.get();
+            return jwtUtil.generateToken(user.getEmail(), new ArrayList<>(user.getRoles()));
         }
         return "Invalid credentials!";
     }
@@ -84,29 +93,23 @@ public class AuthController {
     }
 
     @GetMapping("/user")
-    public Map<String, String> getUserDetails(@RequestHeader("Authorization") String authHeader) {
-
+    public Map<String, Object> getUserDetails(@RequestHeader("Authorization") String authHeader) {
         String token = authHeader.replace("Bearer ", "");
-
-
         if (!jwtUtil.validateToken(token)) {
             throw new RuntimeException("Invalid or expired JWT token");
         }
 
-
         String email = jwtUtil.extractEmail(token);
-
-
         Optional<User> userOptional = userRepository.findByEmail(email);
         if (!userOptional.isPresent()) {
             throw new RuntimeException("User not found");
         }
         User user = userOptional.get();
 
-
-        Map<String, String> userDetails = new HashMap<>();
+        Map<String, Object> userDetails = new HashMap<>();
         userDetails.put("username", user.getUsername());
         userDetails.put("email", user.getEmail());
+        userDetails.put("roles", new ArrayList<>(user.getRoles())); // Include roles in the response
         return userDetails;
     }
 
