@@ -1,17 +1,28 @@
 package com.example.PfaBack.controller;
 
-import com.example.PfaBack.models.AuthRequest;
-import com.example.PfaBack.models.User;
-import com.example.PfaBack.repository.UserRepository;
-import com.example.PfaBack.Security.JwtUtil;
-import lombok.Data;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import com.example.PfaBack.Security.JwtUtil;
+import com.example.PfaBack.models.AuthRequest;
+import com.example.PfaBack.models.User;
+import com.example.PfaBack.repository.UserRepository;
 
 @RestController
 @RequestMapping("/auth")
@@ -70,7 +81,7 @@ public class AuthController {
         user.setResetTokenExpiry(new Date(System.currentTimeMillis() + 3600000)); // 1-hour expiry
         userRepository.save(user);
 
-        String resetLink = "http://localhost:5173/reset-password?token=" + resetToken;
+        String resetLink = "http://localhost:5174/reset-password?token=" + resetToken;
         sendResetEmail(user.getEmail(), resetLink);
 
         return "Password reset link sent to your email!";
@@ -127,13 +138,50 @@ public class AuthController {
     }
 }
 
-@Data
+
 class EmailRequest {
     private String email;
+
+    public EmailRequest() {}
+
+    public EmailRequest(String email) {
+        this.email = email;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }
 
-@Data
+
 class ResetPasswordRequest {
     private String token;
     private String newPassword;
+
+    public ResetPasswordRequest() {}
+
+    public ResetPasswordRequest(String token, String newPassword) {
+        this.token = token;
+        this.newPassword = newPassword;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public String getNewPassword() {
+        return newPassword;
+    }
+
+    public void setNewPassword(String newPassword) {
+        this.newPassword = newPassword;
+    }
 }
