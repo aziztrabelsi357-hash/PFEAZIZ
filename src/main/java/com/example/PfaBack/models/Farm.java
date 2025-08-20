@@ -16,11 +16,19 @@ public class Farm {
     private List<String> plantIds;
     private String userId; // store user ID
     private WaterTank waterTank;
+    private CowFoodTank cowFoodTank;
+    private DogFoodTank dogFoodTank;
+    private ChickenFoodTank chickenFoodTank;
+    private SheepFoodTank sheepFoodTank;
 
 
     // Constructors, getters, and setters
     public Farm() {
         this.waterTank = new WaterTank();
+        this.cowFoodTank = new CowFoodTank();
+        this.dogFoodTank = new DogFoodTank();
+        this.chickenFoodTank = new ChickenFoodTank();
+        this.sheepFoodTank = new SheepFoodTank();
     }
 
     public Farm(String name, String location, List<String> animalIds, List<String> plantIds, String userId) {
@@ -30,7 +38,22 @@ public class Farm {
         this.plantIds = plantIds;
         this.userId = userId;
         this.waterTank = new WaterTank();
+        this.cowFoodTank = new CowFoodTank();
+        this.dogFoodTank = new DogFoodTank();
+        this.chickenFoodTank = new ChickenFoodTank();
+        this.sheepFoodTank = new SheepFoodTank();
     }
+    public CowFoodTank getCowFoodTank() { return cowFoodTank; }
+    public void setCowFoodTank(CowFoodTank cowFoodTank) { this.cowFoodTank = cowFoodTank; }
+
+    public DogFoodTank getDogFoodTank() { return dogFoodTank; }
+    public void setDogFoodTank(DogFoodTank dogFoodTank) { this.dogFoodTank = dogFoodTank; }
+
+    public ChickenFoodTank getChickenFoodTank() { return chickenFoodTank; }
+    public void setChickenFoodTank(ChickenFoodTank chickenFoodTank) { this.chickenFoodTank = chickenFoodTank; }
+
+    public SheepFoodTank getSheepFoodTank() { return sheepFoodTank; }
+    public void setSheepFoodTank(SheepFoodTank sheepFoodTank) { this.sheepFoodTank = sheepFoodTank; }
     public WaterTank getWaterTank() {
         return waterTank;
     }

@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.PfaBack.models.Animal;
+import com.example.PfaBack.Services.AnimalFactory;
 import com.example.PfaBack.models.Farm;
 import com.example.PfaBack.models.Plant;
 import com.example.PfaBack.repository.AnimalRepository;
@@ -69,9 +70,11 @@ public Animal addAnimalToFarm(String farmId, Animal animal) {
     Farm farm = farmRepository.findById(farmId)
             .orElseThrow(() -> new RuntimeException("Farm not found: " + farmId));
 
+    // Use factory to create concrete subclass when possible
+    Animal toSave = AnimalFactory.createFrom(animal);
     // Set foreign key
-    animal.setFarmId(farmId);
-    Animal savedAnimal = animalRepository.save(animal);
+    toSave.setFarmId(farmId);
+    Animal savedAnimal = animalRepository.save(toSave);
 
     // Update farm’s animalIds
     if (farm.getAnimalIds() == null) {
@@ -103,4 +106,89 @@ public Plant addPlantToFarm(String farmId, Plant plant) {
 
     return savedPlant; 
   } 
+
+    // Food tank helpers
+    public double getCowFoodLevel(String farmId) {
+        Farm farm = getFarmById(farmId);
+        if (farm == null || farm.getCowFoodTank() == null) throw new RuntimeException("Farm or cow tank not found");
+        return farm.getCowFoodTank().getQuantity();
+    }
+
+    public double getDogFoodLevel(String farmId) {
+        Farm farm = getFarmById(farmId);
+        if (farm == null || farm.getDogFoodTank() == null) throw new RuntimeException("Farm or dog tank not found");
+        return farm.getDogFoodTank().getQuantity();
+    }
+
+    public double getChickenFoodLevel(String farmId) {
+        Farm farm = getFarmById(farmId);
+        if (farm == null || farm.getChickenFoodTank() == null) throw new RuntimeException("Farm or chicken tank not found");
+        return farm.getChickenFoodTank().getQuantity();
+    }
+
+    public double getSheepFoodLevel(String farmId) {
+        Farm farm = getFarmById(farmId);
+        if (farm == null || farm.getSheepFoodTank() == null) throw new RuntimeException("Farm or sheep tank not found");
+        return farm.getSheepFoodTank().getQuantity();
+    }
+
+    public void refillCowFoodTank(String farmId, double amount) {
+        Farm farm = getFarmById(farmId);
+        if (farm == null || farm.getCowFoodTank() == null) throw new RuntimeException("Farm or cow tank not found");
+        farm.getCowFoodTank().setQuantity(farm.getCowFoodTank().getQuantity() + amount);
+        saveFarm(farm);
+    }
+
+    public void refillDogFoodTank(String farmId, double amount) {
+        Farm farm = getFarmById(farmId);
+        if (farm == null || farm.getDogFoodTank() == null) throw new RuntimeException("Farm or dog tank not found");
+        farm.getDogFoodTank().setQuantity(farm.getDogFoodTank().getQuantity() + amount);
+        saveFarm(farm);
+    }
+
+    public void refillChickenFoodTank(String farmId, double amount) {
+        Farm farm = getFarmById(farmId);
+        if (farm == null || farm.getChickenFoodTank() == null) throw new RuntimeException("Farm or chicken tank not found");
+        farm.getChickenFoodTank().setQuantity(farm.getChickenFoodTank().getQuantity() + amount);
+        saveFarm(farm);
+    }
+
+    public void refillSheepFoodTank(String farmId, double amount) {
+        Farm farm = getFarmById(farmId);
+        if (farm == null || farm.getSheepFoodTank() == null) throw new RuntimeException("Farm or sheep tank not found");
+        farm.getSheepFoodTank().setQuantity(farm.getSheepFoodTank().getQuantity() + amount);
+        saveFarm(farm);
+    }
+
+    public double getCowFoodUsageTotal(String farmId) {
+        Farm farm = getFarmById(farmId);
+        if (farm == null || farm.getCowFoodTank() == null) throw new RuntimeException("Farm or cow tank not found");
+        double total = 0.0;
+        if (farm.getCowFoodTank().getUsageByDate() != null) for (double v : farm.getCowFoodTank().getUsageByDate().values()) total += v;
+        return total;
+    }
+
+    public double getDogFoodUsageTotal(String farmId) {
+        Farm farm = getFarmById(farmId);
+        if (farm == null || farm.getDogFoodTank() == null) throw new RuntimeException("Farm or dog tank not found");
+        double total = 0.0;
+        if (farm.getDogFoodTank().getUsageByDate() != null) for (double v : farm.getDogFoodTank().getUsageByDate().values()) total += v;
+        return total;
+    }
+
+    public double getChickenFoodUsageTotal(String farmId) {
+        Farm farm = getFarmById(farmId);
+        if (farm == null || farm.getChickenFoodTank() == null) throw new RuntimeException("Farm or chicken tank not found");
+        double total = 0.0;
+        if (farm.getChickenFoodTank().getUsageByDate() != null) for (double v : farm.getChickenFoodTank().getUsageByDate().values()) total += v;
+        return total;
+    }
+
+    public double getSheepFoodUsageTotal(String farmId) {
+        Farm farm = getFarmById(farmId);
+        if (farm == null || farm.getSheepFoodTank() == null) throw new RuntimeException("Farm or sheep tank not found");
+        double total = 0.0;
+        if (farm.getSheepFoodTank().getUsageByDate() != null) for (double v : farm.getSheepFoodTank().getUsageByDate().values()) total += v;
+        return total;
+    }
 }

@@ -26,7 +26,7 @@ import com.example.PfaBack.models.WaterTank;
 @RestController
 @RequestMapping("/api/farms")
 public class FarmController {
-
+    
     @Autowired
     private FarmService farmService;
     @Autowired
@@ -117,6 +117,126 @@ public class FarmController {
         map.put("level", level);
         map.put("low", low);
         return map;
+    }
+
+    // --- Cow food tank endpoints ---
+    @GetMapping("/{farmId}/cow-tank-level")
+    public java.util.Map<String,Object> getCowTankLevel(@PathVariable String farmId) {
+        double level = farmService.getCowFoodLevel(farmId);
+        boolean low = level < 50; // threshold for food
+        return java.util.Map.of("level", level, "low", low);
+    }
+
+    @PostMapping("/{farmId}/cow-tank/refill")
+    public java.util.Map<String,Object> refillCowTank(@PathVariable String farmId, @RequestParam double amount) {
+        farmService.refillCowFoodTank(farmId, amount);
+        double level = farmService.getCowFoodLevel(farmId);
+        return java.util.Map.of("level", level);
+    }
+
+    @GetMapping("/{farmId}/cow-tank/usage-by-date")
+    public java.util.Map<String,Double> getCowUsageByDate(@PathVariable String farmId, @RequestParam String date) {
+        Farm farm = farmService.getFarmById(farmId);
+        if (farm == null || farm.getCowFoodTank() == null) throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Farm or cow tank not found: " + farmId);
+        Double used = 0.0;
+        if (farm.getCowFoodTank().getUsageByDate() != null) used = farm.getCowFoodTank().getUsageByDate().getOrDefault(date, 0.0);
+        return java.util.Map.of("used", used);
+    }
+
+    @GetMapping("/{farmId}/cow-tank/usage-total")
+    public java.util.Map<String,Double> getCowUsageTotal(@PathVariable String farmId) {
+        double total = farmService.getCowFoodUsageTotal(farmId);
+        return java.util.Map.of("total", total);
+    }
+
+    // --- Dog food tank endpoints ---
+    @GetMapping("/{farmId}/dog-tank-level")
+    public java.util.Map<String,Object> getDogTankLevel(@PathVariable String farmId) {
+        double level = farmService.getDogFoodLevel(farmId);
+        boolean low = level < 20;
+        return java.util.Map.of("level", level, "low", low);
+    }
+
+    @PostMapping("/{farmId}/dog-tank/refill")
+    public java.util.Map<String,Object> refillDogTank(@PathVariable String farmId, @RequestParam double amount) {
+        farmService.refillDogFoodTank(farmId, amount);
+        double level = farmService.getDogFoodLevel(farmId);
+        return java.util.Map.of("level", level);
+    }
+
+    @GetMapping("/{farmId}/dog-tank/usage-by-date")
+    public java.util.Map<String,Double> getDogUsageByDate(@PathVariable String farmId, @RequestParam String date) {
+        Farm farm = farmService.getFarmById(farmId);
+        if (farm == null || farm.getDogFoodTank() == null) throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Farm or dog tank not found: " + farmId);
+        Double used = 0.0;
+        if (farm.getDogFoodTank().getUsageByDate() != null) used = farm.getDogFoodTank().getUsageByDate().getOrDefault(date, 0.0);
+        return java.util.Map.of("used", used);
+    }
+
+    @GetMapping("/{farmId}/dog-tank/usage-total")
+    public java.util.Map<String,Double> getDogUsageTotal(@PathVariable String farmId) {
+        double total = farmService.getDogFoodUsageTotal(farmId);
+        return java.util.Map.of("total", total);
+    }
+
+    // --- Chicken food tank endpoints ---
+    @GetMapping("/{farmId}/chicken-tank-level")
+    public java.util.Map<String,Object> getChickenTankLevel(@PathVariable String farmId) {
+        double level = farmService.getChickenFoodLevel(farmId);
+        boolean low = level < 20;
+        return java.util.Map.of("level", level, "low", low);
+    }
+
+    @PostMapping("/{farmId}/chicken-tank/refill")
+    public java.util.Map<String,Object> refillChickenTank(@PathVariable String farmId, @RequestParam double amount) {
+        farmService.refillChickenFoodTank(farmId, amount);
+        double level = farmService.getChickenFoodLevel(farmId);
+        return java.util.Map.of("level", level);
+    }
+
+    @GetMapping("/{farmId}/chicken-tank/usage-by-date")
+    public java.util.Map<String,Double> getChickenUsageByDate(@PathVariable String farmId, @RequestParam String date) {
+        Farm farm = farmService.getFarmById(farmId);
+        if (farm == null || farm.getChickenFoodTank() == null) throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Farm or chicken tank not found: " + farmId);
+        Double used = 0.0;
+        if (farm.getChickenFoodTank().getUsageByDate() != null) used = farm.getChickenFoodTank().getUsageByDate().getOrDefault(date, 0.0);
+        return java.util.Map.of("used", used);
+    }
+
+    @GetMapping("/{farmId}/chicken-tank/usage-total")
+    public java.util.Map<String,Double> getChickenUsageTotal(@PathVariable String farmId) {
+        double total = farmService.getChickenFoodUsageTotal(farmId);
+        return java.util.Map.of("total", total);
+    }
+
+    // --- Sheep food tank endpoints ---
+    @GetMapping("/{farmId}/sheep-tank-level")
+    public java.util.Map<String,Object> getSheepTankLevel(@PathVariable String farmId) {
+        double level = farmService.getSheepFoodLevel(farmId);
+        boolean low = level < 50;
+        return java.util.Map.of("level", level, "low", low);
+    }
+
+    @PostMapping("/{farmId}/sheep-tank/refill")
+    public java.util.Map<String,Object> refillSheepTank(@PathVariable String farmId, @RequestParam double amount) {
+        farmService.refillSheepFoodTank(farmId, amount);
+        double level = farmService.getSheepFoodLevel(farmId);
+        return java.util.Map.of("level", level);
+    }
+
+    @GetMapping("/{farmId}/sheep-tank/usage-by-date")
+    public java.util.Map<String,Double> getSheepUsageByDate(@PathVariable String farmId, @RequestParam String date) {
+        Farm farm = farmService.getFarmById(farmId);
+        if (farm == null || farm.getSheepFoodTank() == null) throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Farm or sheep tank not found: " + farmId);
+        Double used = 0.0;
+        if (farm.getSheepFoodTank().getUsageByDate() != null) used = farm.getSheepFoodTank().getUsageByDate().getOrDefault(date, 0.0);
+        return java.util.Map.of("used", used);
+    }
+
+    @GetMapping("/{farmId}/sheep-tank/usage-total")
+    public java.util.Map<String,Double> getSheepUsageTotal(@PathVariable String farmId) {
+        double total = farmService.getSheepFoodUsageTotal(farmId);
+        return java.util.Map.of("total", total);
     }
 
     @GetMapping("/{farmId}/water-usage")
@@ -250,10 +370,71 @@ public class FarmController {
     }
 
     
-    // Endpoint to feed an animal (add to todayIntakeLiters)
-    @PostMapping("/{farmId}/animals/{animalId}/feed")
-    public Animal feedAnimal(@PathVariable String farmId, @PathVariable String animalId, @RequestParam double liters) {
-        // Optionally: check farmId matches animal's farmId
-        return animalService.addIntake(animalId, liters);
-    }
+        // Endpoint to feed an animal (add to todayIntakeLiters) — accepts optional JSON body and returns updated Animal
+        @PostMapping("/{farmId}/animals/{animalId}/feed")
+        public Animal feedAnimal(@PathVariable String farmId, @PathVariable String animalId, @RequestParam double liters, @RequestBody(required = false) Map<String, Object> body) {
+            System.out.println("[FeedEndpoint] Received feed POST: farm="+farmId+" animal="+animalId+" liters="+liters+" body="+ (body!=null?body.toString():"null"));
+
+            // Optionally parse additional fields from body (e.g., foodType)
+            String foodType = null;
+            if (body != null && body.containsKey("foodType")) {
+                Object val = body.get("foodType");
+                if (val instanceof String) foodType = (String) val;
+            }
+
+            // Update animal intake (this also updates the farm tanks in AnimalService)
+            Animal updated = animalService.addIntake(animalId, liters);
+            System.out.println("[FeedEndpoint] animalService.addIntake called for " + animalId + ", updated todayIntake=" + (updated!=null?updated.getTodayIntakeLiters():"null"));
+
+            return updated;
+        }
+
+        // Simple admin/debug endpoint: set an animal's fullness to 1.0 by animalId only
+        @PostMapping("/animals/{animalId}/set-fullness")
+        public Animal setAnimalFullnessToOne(@PathVariable String animalId) {
+            System.out.println("[Admin] set fullness=1.0 for animal=" + animalId);
+            Animal a = animalService.getAnimalById(animalId);
+            if (a == null) {
+                throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Animal not found: " + animalId);
+            }
+            a.setFullness(1.0);
+            return animalService.saveAnimal(a);
+        }
+
+        // Decrease fullness based on species (admin/debug). Dogs lose less fullness than cows/chickens.
+        @PostMapping("/animals/{animalId}/decrease-fullness")
+        public Animal decreaseAnimalFullnessBySpecies(@PathVariable String animalId) {
+            System.out.println("[Admin] decrease fullness for animal=" + animalId);
+            Animal a = animalService.getAnimalById(animalId);
+            if (a == null) {
+                throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Animal not found: " + animalId);
+            }
+
+            String species = a.getSpecies() != null ? a.getSpecies().toLowerCase() : "";
+            double decrease;
+            switch (species) {
+                case "dog":
+                    decrease = 0.05; // dogs get hungry slower
+                    break;
+                case "cow":
+                    decrease = 0.25;
+                    break;
+                case "chicken":
+                    decrease = 0.30;
+                    break;
+                case "sheep":
+                    decrease = 0.15;
+                    break;
+                default:
+                    decrease = 0.20;
+            }
+
+            double current = a.getFullness() != null ? a.getFullness() : 1.0;
+            double updated = current - decrease;
+            if (updated < 0.0) updated = 0.0;
+            a.setFullness(updated);
+            Animal saved = animalService.saveAnimal(a);
+            System.out.println("[Admin] species=" + species + " fullness: " + current + " -> " + updated);
+            return saved;
+        }
 }

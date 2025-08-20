@@ -29,6 +29,7 @@ public class Animal {
       private Double todayIntakeLiters; // accumulated for current day
       private Double recommendedIntakeLiters; // recommended daily amount
       private String intakeUpdatedAt; // ISO date (yyyy-MM-dd) when todayIntakeLiters last reset
+    private Double fullness; // 0.0..1.0 how full the animal is relative to recommended intake
       private String userId;
   public String getUserId() {
     return userId;
@@ -100,6 +101,9 @@ public class Animal {
 
   public Double getTodayIntakeLiters() { return todayIntakeLiters; }
   public void setTodayIntakeLiters(Double todayIntakeLiters) { this.todayIntakeLiters = todayIntakeLiters; }
+
+  public Double getFullness() { return fullness; }
+  public void setFullness(Double fullness) { this.fullness = fullness; }
 
   public Double getRecommendedIntakeLiters() { return recommendedIntakeLiters; }
   public void setRecommendedIntakeLiters(Double recommendedIntakeLiters) { this.recommendedIntakeLiters = recommendedIntakeLiters; }
