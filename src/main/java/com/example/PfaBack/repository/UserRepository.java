@@ -11,4 +11,6 @@ import com.example.PfaBack.models.User;
 public interface UserRepository extends MongoRepository<User, String> {
     Optional<User> findByEmail(String email);
     Optional<User> findByResetToken(String resetToken);
+
+    Optional<User> findById(String userId);
 }

@@ -7,25 +7,46 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "animals")
 public class Animal {
-    @Id
-    private String id;
-    private String name;
-    private String imageUrl;
-    private String species;
-    private String breed;
-    private String birthDate;
-    private String sex;
-    private String weight;
-    private String healthStatus;
-    private String feeding;
-    private String activity;
-    private String notes;
-    private String vet;
-    private String nextVisit;
-    private String vaccinationDate;
-    private List<MedicalProcess> medicalProcesses;
+  @Id
+  private String id;
+      private String name;
+      private String imageUrl;
+      private String species;
+      private String breed;
+      private String birthDate;
+      private String sex;
+      private String weight;
+      private String healthStatus;
+      private String feeding;
+      private String activity;
+      private String notes;
+      private String vet;
+      private String nextVisit;
+      private String vaccinationDate;
+      private List<MedicalProcess> medicalProcesses;
+      private String farmId;
+      // Water intake tracking
+      private Double todayIntakeLiters; // accumulated for current day
+      private Double recommendedIntakeLiters; // recommended daily amount
+      private String intakeUpdatedAt; // ISO date (yyyy-MM-dd) when todayIntakeLiters last reset
+      private String userId;
+  public String getUserId() {
+    return userId;
+  }
 
-    public Animal() {}
+  public void setUserId(String userId) {
+    this.userId = userId;
+  }
+
+  public Animal() {}
+
+  public String getFarmId() {
+    return farmId;
+  }
+
+  public void setFarmId(String farmId) {
+    this.farmId = farmId;
+  }
 
     // Add a constructor with all fields if needed
 
@@ -76,4 +97,13 @@ public class Animal {
 
     public List<MedicalProcess> getMedicalProcesses() { return medicalProcesses; }
     public void setMedicalProcesses(List<MedicalProcess> medicalProcesses) { this.medicalProcesses = medicalProcesses; }
+
+  public Double getTodayIntakeLiters() { return todayIntakeLiters; }
+  public void setTodayIntakeLiters(Double todayIntakeLiters) { this.todayIntakeLiters = todayIntakeLiters; }
+
+  public Double getRecommendedIntakeLiters() { return recommendedIntakeLiters; }
+  public void setRecommendedIntakeLiters(Double recommendedIntakeLiters) { this.recommendedIntakeLiters = recommendedIntakeLiters; }
+
+  public String getIntakeUpdatedAt() { return intakeUpdatedAt; }
+  public void setIntakeUpdatedAt(String intakeUpdatedAt) { this.intakeUpdatedAt = intakeUpdatedAt; }
 }

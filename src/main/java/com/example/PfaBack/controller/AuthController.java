@@ -46,6 +46,7 @@ public class AuthController {
         if (user.getRoles() == null || user.getRoles().isEmpty()) {
             user.setRoles(Set.of("USER"));
         }
+        user.setFarm(null);
         userRepository.save(user);
         return "User registered successfully!";
     }

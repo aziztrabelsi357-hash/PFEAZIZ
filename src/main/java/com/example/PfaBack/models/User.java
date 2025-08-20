@@ -1,9 +1,10 @@
 package com.example.PfaBack.models;
 
+import java.util.Date;
+import java.util.Set;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import java.util.Set;
-import java.util.Date;
 
 @Document(collection = "users")
 public class User {
@@ -16,9 +17,11 @@ public class User {
     private String resetToken;         // New field for reset token
     private Date resetTokenExpiry;     // New field for token expiration
 
+    private Farm farm; // Each user can have only one farm
+
     public User() {}
 
-    public User(String id, String username, String email, String password, Set<String> roles, String resetToken, Date resetTokenExpiry) {
+    public User(String id, String username, String email, String password, Set<String> roles, String resetToken, Date resetTokenExpiry, Farm farm) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -26,6 +29,14 @@ public class User {
         this.roles = roles;
         this.resetToken = resetToken;
         this.resetTokenExpiry = resetTokenExpiry;
+        this.farm = farm;
+    }
+    public Farm getFarm() {
+        return farm;
+    }
+
+    public void setFarm(Farm farm) {
+        this.farm = farm;
     }
 
     public String getId() {
