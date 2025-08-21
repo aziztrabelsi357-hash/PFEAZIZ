@@ -10,16 +10,14 @@ public class Product {
     private String name;
     private String description;
     private String imageUrl;
-    private String diseaseId; // Référence à la maladie associée
 
     public Product() {}
 
-    public Product(String id, String name, String description, String imageUrl, String diseaseId) {
+    public Product(String id, String name, String description, String imageUrl) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.imageUrl = imageUrl;
-        this.diseaseId = diseaseId;
     }
 
     public String getId() {
@@ -54,12 +52,8 @@ public class Product {
         this.imageUrl = imageUrl;
     }
 
-    public String getDiseaseId() {
-        return diseaseId;
-    }
+    
 
-    public void setDiseaseId(String diseaseId) {
-        this.diseaseId = diseaseId;
-    }
+  
 }
 

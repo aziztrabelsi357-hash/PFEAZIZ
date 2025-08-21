@@ -18,10 +18,6 @@ public class ProductService {
         return productRepository.findById(id).orElse(null);
     }
 
-    public List<Product> getProductsByDiseaseId(String diseaseId) {
-        return productRepository.findByDiseaseId(diseaseId);
-    }
-
     public Product createProduct(Product product) {
         return productRepository.save(product);
     }

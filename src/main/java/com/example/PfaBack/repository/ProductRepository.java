@@ -6,5 +6,5 @@ import java.util.List;
 
 @Repository
 public interface ProductRepository extends MongoRepository<Product, String> {
-    List<Product> findByDiseaseId(String diseaseId);
+    // removed disease-related query because Product has no diseaseId field
 }

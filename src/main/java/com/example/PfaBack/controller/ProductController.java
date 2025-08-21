@@ -21,11 +21,6 @@ public class ProductController {
         return productService.getProductById(id);
     }
 
-    @GetMapping("/disease/{diseaseId}")
-    public List<Product> getProductsByDiseaseId(@PathVariable String diseaseId) {
-        return productService.getProductsByDiseaseId(diseaseId);
-    }
-
     @PostMapping
     public Product createProduct(@RequestBody Product product) {
         return productService.createProduct(product);
