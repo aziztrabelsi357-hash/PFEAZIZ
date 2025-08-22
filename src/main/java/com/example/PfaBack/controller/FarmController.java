@@ -3,8 +3,6 @@ package com.example.PfaBack.controller;
 import java.util.List;
 import java.util.Map;
 
-import com.example.PfaBack.repository.FarmRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +19,6 @@ import com.example.PfaBack.Services.PlantService;
 import com.example.PfaBack.models.Animal;
 import com.example.PfaBack.models.Farm;
 import com.example.PfaBack.models.Plant;
-import com.example.PfaBack.models.WaterTank;
 
 @RestController
 @RequestMapping("/api/farms")
@@ -414,19 +411,19 @@ public class FarmController {
             double decrease;
             switch (species) {
                 case "dog":
-                    decrease = 0.05; // dogs get hungry slower
+                    decrease = 0.005; // dogs get hungry slower
                     break;
                 case "cow":
-                    decrease = 0.25;
+                    decrease = 0.025;
                     break;
                 case "chicken":
-                    decrease = 0.30;
+                    decrease = 0.030;
                     break;
                 case "sheep":
-                    decrease = 0.15;
+                    decrease = 0.015;
                     break;
                 default:
-                    decrease = 0.20;
+                    decrease = 0.020;
             }
 
             double current = a.getFullness() != null ? a.getFullness() : 1.0;
